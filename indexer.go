@@ -1,7 +1,6 @@
 package main
 
 import (
-	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -9,30 +8,8 @@ import (
 	"time"
 )
 
-func storeRecord(path string, records *[]recordItem, termIndex *[]indexItem) {
-	currentRecord := recordItem{len(*records), path}
-	*records = append(*records, currentRecord)
-
-	terms := strings.FieldsFunc(path, pathSplit)
-	for i := 0; i < len(terms); i++ {
-		addRecordToIndex(terms[i], currentRecord.id, termIndex)
-	}
-}
-
 func pathSplit(r rune) bool {
 	return r == '/' || r == '\\' || r == ' ' || r == '.'
-}
-
-func addRecordToIndex(term string, recordID int, termIndex *[]indexItem) {
-	term = neutralString(term)
-	for j := 0; j < len(*termIndex); j++ {
-		if (*termIndex)[j].term == term {
-			addRecordToTerm(termIndex, recordID, j)
-			return
-		}
-	}
-
-	insertNewTerm(term, recordID, termIndex)
 }
 
 func neutralString(s string) string {
@@ -41,25 +18,17 @@ func neutralString(s string) string {
 	return s
 }
 
-func addRecordToTerm(termIndex *[]indexItem, recordID int, index int) {
-	(*termIndex)[index].records = append((*termIndex)[index].records, recordID)
-}
-
-func insertNewTerm(term string, recordID int, termIndex *[]indexItem) {
-	index := indexItem{
-		id:      len(*termIndex),
-		term:    term,
-		records: []int{recordID},
-	}
-	*termIndex = append(*termIndex, index)
-}
-
-func indexPath(startPath string) ([]recordItem, []indexItem) {
+func indexPath(startPath string) InverseIndex {
 	var totalCount int
 	var matchCount int
 
 	records := make([]recordItem, 0)
 	termIndex := make([]indexItem, 0)
+
+	inverseIndex := InverseIndex{
+		indexItems:  termIndex,
+		recordItems: records,
+	}
 
 	startTime := time.Now()
 
@@ -68,11 +37,11 @@ func indexPath(startPath string) ([]recordItem, []indexItem) {
 
 		if strings.Contains(path, "node_modules") {
 			fmt.Println("Skipping directory", path)
-			return errors.New("Skipping directory")
+			return filepath.SkipDir
 		}
 		if strings.HasSuffix(path, ".exe") {
 			matchCount++
-			storeRecord(path, &records, &termIndex)
+			inverseIndex.StoreRecord(path)
 			fmt.Printf("(%d) Visited: %s\n", matchCount, path)
 		}
 
@@ -87,8 +56,5 @@ func indexPath(startPath string) ([]recordItem, []indexItem) {
 	fmt.Printf("Total items found: %d\n", totalCount)
 	fmt.Printf("Total exes found: %d\n", matchCount)
 
-	//fmt.Println("records", records)
-	//fmt.Println("termIndex", termIndex)
-
-	return records, termIndex
+	return inverseIndex
 }

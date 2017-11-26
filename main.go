@@ -15,7 +15,7 @@ func main() {
 		return
 	}
 
-	records, termIndex := indexPath(root)
-	search(records, termIndex)
+	index := indexPath(root)
+	search(index)
 
 }
