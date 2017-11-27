@@ -25,8 +25,8 @@ func search(recordsIndex InverseIndex) {
 		if strings.Contains(termItem.term, input) {
 			fmt.Println("Found term", termItem.id, termItem.term)
 			for j := 0; j < len(termItem.records); j++ {
-				record := recordsIndex.recordItems[termItem.records[j]]
-				fmt.Println("\tRecord associated:", record.id, record.content)
+				record := recordsIndex.Record(termItem.records[j])
+				fmt.Println("\tRecord associated:", record.ID(), record.Content())
 			}
 		}
 	}

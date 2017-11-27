@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"inverted-index/recordkeeper"
 	"os"
 	"path/filepath"
 	"strings"
@@ -22,7 +23,7 @@ func indexPath(startPath string) InverseIndex {
 	var totalCount int
 	var matchCount int
 
-	records := make([]recordItem, 0)
+	records := recordkeeper.Create()
 	termIndex := make([]indexItem, 0)
 
 	inverseIndex := InverseIndex{

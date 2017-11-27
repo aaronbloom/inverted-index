@@ -1,22 +1,25 @@
 package main
 
-import "strings"
+import (
+	"inverted-index/recordkeeper"
+	"strings"
+)
 
 // RecordIndex defines a way to store items in an index
 type RecordIndex interface {
 	StoreRecord(path string)
+	Record(id int) recordkeeper.RecordItem
 }
 
 // InverseIndex is an implementation of RecordIndex that
 // stores items in an inverted index structure
 type InverseIndex struct {
-	recordItems []recordItem
+	recordItems recordkeeper.RecordKeeper
 	indexItems  []indexItem
 }
 
-type recordItem struct {
-	id      int
-	content string
+type IndexItems struct {
+	indexItems []indexItem
 }
 
 type indexItem struct {
@@ -27,12 +30,11 @@ type indexItem struct {
 
 // StoreRecord takes an item and stores it in an inverted index structure
 func (ii *InverseIndex) StoreRecord(path string) {
-	newRecord := recordItem{len((*ii).recordItems), path}
-	(*ii).recordItems = append((*ii).recordItems, newRecord)
+	recordID := (*ii).recordItems.AddRecord(path)
 
 	terms := strings.FieldsFunc(path, pathSplit)
 	for i := 0; i < len(terms); i++ {
-		(*ii).addRecordToIndex(terms[i], newRecord.id)
+		(*ii).addRecordToIndex(terms[i], recordID)
 	}
 }
 
@@ -59,4 +61,9 @@ func (ii *InverseIndex) insertNewTerm(term string, recordID int) {
 		records: []int{recordID},
 	}
 	(*ii).indexItems = append((*ii).indexItems, index)
+}
+
+// Record gets a record item based upon an id
+func (ii *InverseIndex) Record(id int) recordkeeper.Record {
+	return (*ii).recordItems.Record(id)
 }
