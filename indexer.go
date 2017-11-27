@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"inverted-index/recordkeeper"
+	"github.com/aaronbloom/inverted-index/recordkeeper"
 	"os"
 	"path/filepath"
 	"strings"

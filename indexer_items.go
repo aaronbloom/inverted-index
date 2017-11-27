@@ -1,7 +1,7 @@
 package main
 
 import (
-	"inverted-index/recordkeeper"
+	"github.com/aaronbloom/inverted-index/recordkeeper"
 	"strings"
 )
 
