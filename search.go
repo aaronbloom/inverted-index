@@ -12,7 +12,6 @@ import (
 
 func search(recordsIndex recordkeeper.RecordIndex) {
 	input := userInput()
-	input = utils.NeutralString(input)
 
 	if input == "exit" {
 		return
@@ -20,7 +19,7 @@ func search(recordsIndex recordkeeper.RecordIndex) {
 
 	startTime := time.Now()
 
-	var results = recordsIndex.Search(input)
+	var results = recordsIndex.Search(input, utils.LowerCaseFilter)
 
 	resultsCount := len(results)
 	if resultsCount > 0 {

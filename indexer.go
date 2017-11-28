@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"github.com/aaronbloom/inverted-index/recordkeeper"
+	"github.com/aaronbloom/inverted-index/utils"
 	"os"
 	"path/filepath"
 	"strings"
@@ -26,7 +27,7 @@ func indexPath(startPath string) recordkeeper.RecordIndex {
 		}
 		if strings.HasSuffix(path, ".exe") {
 			matchCount++
-			recordkeeper.StoreRecord(path)
+			recordkeeper.StoreRecord(path, utils.FilePathTokenizer, utils.LowerCaseFilter)
 			fmt.Printf("(%d) Visited: %s\n", matchCount, path)
 		}
 

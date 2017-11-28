@@ -1,32 +1,27 @@
 package recordkeeper
 
 import (
-	"github.com/aaronbloom/inverted-index/utils"
 	"strings"
 )
 
 // RecordIndex defines a way to store items in an index
 type RecordIndex interface {
-	StoreRecord(path string)
+	StoreRecord(path string, t tokeniser, filter termFilter)
 	Record(id int) RecordItem
-	Search(term string) []RecordItem
+	Search(term string, filter termFilter) []RecordItem
 }
 
 // CreateRecordIndex creates an new instance of a RecordIndex
 func CreateRecordIndex() RecordIndex {
 	return &inverseIndex{
-		recordItems: CreateRecordKeeper(),
-		indexItems:  make([]indexItem, 0),
+		records: CreateRecordKeeper(),
+		index:   make([]indexItem, 0),
 	}
 }
 
 type inverseIndex struct {
-	recordItems RecordKeeper
-	indexItems  []indexItem
-}
-
-type IndexItems struct {
-	indexItems []indexItem
+	records RecordKeeper
+	index   []indexItem
 }
 
 type indexItem struct {
@@ -35,27 +30,31 @@ type indexItem struct {
 	records []int
 }
 
-// StoreRecord takes an item and stores it in an inverted index structure
-func (ii *inverseIndex) StoreRecord(path string) {
-	recordID := (*ii).recordItems.AddRecord(path)
+type tokeniser func(r rune) bool
+type termFilter func(s string) string
 
-	terms := strings.FieldsFunc(path, utils.PathSplit)
+// StoreRecord takes an item and stores it in an inverted index structure
+func (ii *inverseIndex) StoreRecord(path string, t tokeniser, filter termFilter) {
+	recordID := (*ii).records.AddRecord(path)
+
+	terms := strings.FieldsFunc(path, t)
+
 	for i := 0; i < len(terms); i++ {
-		(*ii).addRecordToIndex(terms[i], recordID)
+		(*ii).addRecordToIndex(filter(terms[i]), recordID)
 	}
 }
 
 // Record gets a record item based upon an id
 func (ii *inverseIndex) Record(id int) RecordItem {
-	return (*ii).recordItems.Record(id)
+	return (*ii).records.Record(id)
 }
 
 // Search returns a slice of RecordItems matching the term parameter
-func (ii *inverseIndex) Search(term string) []RecordItem {
+func (ii *inverseIndex) Search(term string, filter termFilter) []RecordItem {
 	records := make([]RecordItem, 0)
-	for i := 0; i < len((*ii).indexItems); i++ {
-		termItem := (*ii).indexItems[i]
-		if strings.Contains(termItem.term, term) {
+	for i := 0; i < len((*ii).index); i++ {
+		termItem := (*ii).index[i]
+		if termItem.term == filter(term) {
 			for j := 0; j < len(termItem.records); j++ {
 				records = append(records, (*ii).Record(termItem.records[j]))
 			}
@@ -65,9 +64,8 @@ func (ii *inverseIndex) Search(term string) []RecordItem {
 }
 
 func (ii *inverseIndex) addRecordToIndex(term string, recordID int) {
-	term = utils.NeutralString(term)
-	for j := 0; j < len((*ii).indexItems); j++ {
-		if ((*ii).indexItems)[j].term == term {
+	for j := 0; j < len((*ii).index); j++ {
+		if ((*ii).index)[j].term == term {
 			(*ii).addRecordToTerm(recordID, j)
 			return
 		}
@@ -76,15 +74,15 @@ func (ii *inverseIndex) addRecordToIndex(term string, recordID int) {
 	(*ii).insertNewTerm(term, recordID)
 }
 
-func (ii *inverseIndex) addRecordToTerm(recordID int, index int) {
-	(*ii).indexItems[index].records = append((*ii).indexItems[index].records, recordID)
+func (ii *inverseIndex) addRecordToTerm(recordID int, i int) {
+	(*ii).index[i].records = append((*ii).index[i].records, recordID)
 }
 
 func (ii *inverseIndex) insertNewTerm(term string, recordID int) {
 	index := indexItem{
-		id:      len((*ii).indexItems),
+		id:      len((*ii).index),
 		term:    term,
 		records: []int{recordID},
 	}
-	(*ii).indexItems = append((*ii).indexItems, index)
+	(*ii).index = append((*ii).index, index)
 }

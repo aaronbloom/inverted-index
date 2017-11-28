@@ -1,11 +1,5 @@
 package recordkeeper
 
-// Record defines a record item type
-type Record interface {
-	ID() int
-	Content() string
-}
-
 // RecordItem is a single instance of a record
 type RecordItem struct {
 	id      int
