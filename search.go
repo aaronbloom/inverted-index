@@ -3,32 +3,31 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"github.com/aaronbloom/inverted-index/recordkeeper"
+	"github.com/aaronbloom/inverted-index/utils"
 	"os"
 	"strings"
 	"time"
 )
 
-func search(recordsIndex InverseIndex) {
+func search(recordsIndex recordkeeper.RecordIndex) {
 	input := userInput()
-	input = neutralString(input)
+	input = utils.NeutralString(input)
 
 	if input == "exit" {
 		return
 	}
 
-	fmt.Println("Lookup:", input)
-
 	startTime := time.Now()
 
-	for i := 0; i < len(recordsIndex.indexItems); i++ {
-		termItem := recordsIndex.indexItems[i]
-		if strings.Contains(termItem.term, input) {
-			fmt.Println("Found term", termItem.id, termItem.term)
-			for j := 0; j < len(termItem.records); j++ {
-				record := recordsIndex.Record(termItem.records[j])
-				fmt.Println("\tRecord associated:", record.ID(), record.Content())
-			}
-		}
+	var results = recordsIndex.Search(input)
+
+	resultsCount := len(results)
+	if resultsCount > 0 {
+		fmt.Printf("Found term: %s, %d result(s)\n", input, resultsCount)
+	}
+	for _, record := range results {
+		fmt.Printf("\t %d %s\n", record.ID(), record.Content())
 	}
 
 	timeTaken := time.Since(startTime)

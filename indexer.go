@@ -9,27 +9,11 @@ import (
 	"time"
 )
 
-func pathSplit(r rune) bool {
-	return r == '/' || r == '\\' || r == ' ' || r == '.'
-}
-
-func neutralString(s string) string {
-	s = strings.TrimSpace(s)
-	s = strings.ToLower(s)
-	return s
-}
-
-func indexPath(startPath string) InverseIndex {
+func indexPath(startPath string) recordkeeper.RecordIndex {
 	var totalCount int
 	var matchCount int
 
-	records := recordkeeper.Create()
-	termIndex := make([]indexItem, 0)
-
-	inverseIndex := InverseIndex{
-		indexItems:  termIndex,
-		recordItems: records,
-	}
+	recordkeeper := recordkeeper.CreateRecordIndex()
 
 	startTime := time.Now()
 
@@ -42,7 +26,7 @@ func indexPath(startPath string) InverseIndex {
 		}
 		if strings.HasSuffix(path, ".exe") {
 			matchCount++
-			inverseIndex.StoreRecord(path)
+			recordkeeper.StoreRecord(path)
 			fmt.Printf("(%d) Visited: %s\n", matchCount, path)
 		}
 
@@ -57,5 +41,5 @@ func indexPath(startPath string) InverseIndex {
 	fmt.Printf("Total items found: %d\n", totalCount)
 	fmt.Printf("Total exes found: %d\n", matchCount)
 
-	return inverseIndex
+	return recordkeeper
 }
