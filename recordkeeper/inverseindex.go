@@ -6,7 +6,7 @@ import (
 
 // RecordIndex defines a way to store items in an index
 type RecordIndex interface {
-	StoreRecord(path string, t tokeniser, filter termFilter)
+	StoreRecord(item string, t tokeniser, filter termFilter)
 	Record(id int) RecordItem
 	Search(term string, filter termFilter) []RecordItem
 }
@@ -34,10 +34,10 @@ type tokeniser func(r rune) bool
 type termFilter func(s string) string
 
 // StoreRecord takes an item and stores it in an inverted index structure
-func (ii *inverseIndex) StoreRecord(path string, t tokeniser, filter termFilter) {
-	recordID := (*ii).records.AddRecord(path)
+func (ii *inverseIndex) StoreRecord(item string, t tokeniser, filter termFilter) {
+	recordID := (*ii).records.AddRecord(item)
 
-	terms := strings.FieldsFunc(path, t)
+	terms := strings.FieldsFunc(item, t)
 
 	for i := 0; i < len(terms); i++ {
 		(*ii).addRecordToIndex(filter(terms[i]), recordID)

@@ -21,15 +21,15 @@ func search(recordsIndex recordkeeper.RecordIndex) {
 
 	var results = recordsIndex.Search(input, utils.LowerCaseFilter)
 
-	resultsCount := len(results)
-
 	timeTaken := time.Since(startTime)
 
-	if resultsCount > 0 {
-		fmt.Printf("Found term: %s, %d result(s)\n", input, resultsCount)
-	}
 	for _, record := range results {
-		fmt.Printf("\t %d %s\n", record.ID(), record.Content())
+		fmt.Printf("\t%d %s\n", record.ID(), record.Content())
+	}
+
+	resultsCount := len(results)
+	if resultsCount > 0 {
+		fmt.Printf("\nCount: %d\n", resultsCount)
 	}
 
 	fmt.Printf("Lookup time taken: %s\n", timeTaken.String())
