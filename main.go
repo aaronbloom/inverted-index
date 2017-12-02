@@ -7,15 +7,17 @@ import (
 
 func main() {
 
+	path := flag.String("p", "./", "path to traverse and index files")
 	flag.Parse()
-	root := flag.Arg(0)
 
-	if len(root) < 1 {
+	if len(*path) < 1 {
 		fmt.Println("Please provide a path to traverse")
 		return
 	}
 
-	index := indexPath(root)
+	fmt.Printf("Indexing path provided: %s\n", *path)
+
+	index := indexPath(*path)
 	search(index)
 
 }
