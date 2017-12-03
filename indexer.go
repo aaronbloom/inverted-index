@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-func indexPath(startPath string) recordkeeper.RecordIndex {
+func indexPath(startPath string, ignoredDirectories []string, fileExtensionMatches []string) recordkeeper.RecordIndex {
 	var totalCount int
 	var matchCount int
 
@@ -21,14 +21,19 @@ func indexPath(startPath string) recordkeeper.RecordIndex {
 	filepath.Walk(startPath, func(path string, f os.FileInfo, err error) error {
 		totalCount++
 
-		if strings.Contains(path, "node_modules") {
-			fmt.Println("Skipping directory", path)
-			return filepath.SkipDir
+		for _, directoryName := range ignoredDirectories {
+			if strings.Contains(path, directoryName) {
+				fmt.Println("Skipping directory", path)
+				return filepath.SkipDir
+			}
 		}
-		if strings.HasSuffix(path, ".exe") {
-			matchCount++
-			recordkeeper.StoreRecord(path, utils.FilePathTokenizer, utils.LowerCaseFilter)
-			fmt.Printf("(%d) Visited: %s\n", matchCount, path)
+
+		for _, extension := range fileExtensionMatches {
+			if strings.HasSuffix(path, extension) {
+				matchCount++
+				recordkeeper.StoreRecord(path, utils.FilePathTokenizer, utils.LowerCaseFilter)
+				fmt.Printf("(%d) Visited: %s\n", matchCount, path)
+			}
 		}
 
 		return nil

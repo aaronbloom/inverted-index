@@ -7,7 +7,7 @@ import (
 // RecordIndex defines a way to store items in an index
 type RecordIndex interface {
 	StoreRecord(item string, t tokeniser, filter termFilter)
-	Record(id int) RecordItem
+	Record(id int64) RecordItem
 	Search(term string, filter termFilter) []RecordItem
 }
 
@@ -15,19 +15,13 @@ type RecordIndex interface {
 func CreateRecordIndex() RecordIndex {
 	return &inverseIndex{
 		records: CreateRecordKeeper(),
-		index:   make([]indexItem, 0),
+		index:   make([]IndexItem, 0),
 	}
 }
 
 type inverseIndex struct {
 	records RecordKeeper
-	index   []indexItem
-}
-
-type indexItem struct {
-	id      int
-	term    string
-	records []int
+	index   []IndexItem
 }
 
 type tokeniser func(r rune) bool
@@ -45,7 +39,7 @@ func (ii *inverseIndex) StoreRecord(item string, t tokeniser, filter termFilter)
 }
 
 // Record gets a record item based upon an id
-func (ii *inverseIndex) Record(id int) RecordItem {
+func (ii *inverseIndex) Record(id int64) RecordItem {
 	return (*ii).records.Record(id)
 }
 
@@ -54,18 +48,18 @@ func (ii *inverseIndex) Search(term string, filter termFilter) []RecordItem {
 	records := make([]RecordItem, 0)
 	for i := 0; i < len((*ii).index); i++ {
 		termItem := (*ii).index[i]
-		if termItem.term == filter(term) {
-			for j := 0; j < len(termItem.records); j++ {
-				records = append(records, (*ii).Record(termItem.records[j]))
+		if termItem.Term == filter(term) {
+			for j := 0; j < len(termItem.Records); j++ {
+				records = append(records, (*ii).Record(termItem.Records[j]))
 			}
 		}
 	}
 	return records
 }
 
-func (ii *inverseIndex) addRecordToIndex(term string, recordID int) {
+func (ii *inverseIndex) addRecordToIndex(term string, recordID int64) {
 	for j := 0; j < len((*ii).index); j++ {
-		if ((*ii).index)[j].term == term {
+		if ((*ii).index)[j].Term == term {
 			(*ii).addRecordToTerm(recordID, j)
 			return
 		}
@@ -74,15 +68,15 @@ func (ii *inverseIndex) addRecordToIndex(term string, recordID int) {
 	(*ii).insertNewTerm(term, recordID)
 }
 
-func (ii *inverseIndex) addRecordToTerm(recordID int, i int) {
-	(*ii).index[i].records = append((*ii).index[i].records, recordID)
+func (ii *inverseIndex) addRecordToTerm(recordID int64, i int) {
+	(*ii).index[i].Records = append((*ii).index[i].Records, recordID)
 }
 
-func (ii *inverseIndex) insertNewTerm(term string, recordID int) {
-	index := indexItem{
-		id:      len((*ii).index),
-		term:    term,
-		records: []int{recordID},
+func (ii *inverseIndex) insertNewTerm(term string, recordID int64) {
+	index := IndexItem{
+		Id:      int64(len((*ii).index)),
+		Term:    term,
+		Records: []int64{recordID},
 	}
 	(*ii).index = append((*ii).index, index)
 }

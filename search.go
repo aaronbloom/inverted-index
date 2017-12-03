@@ -24,7 +24,7 @@ func search(recordsIndex recordkeeper.RecordIndex) {
 	timeTaken := time.Since(startTime)
 
 	for _, record := range results {
-		fmt.Printf("\t%d %s\n", record.ID(), record.Content())
+		fmt.Printf("\t%d %s\n", record.ID(), record.Contents())
 	}
 
 	resultsCount := len(results)

@@ -15,9 +15,12 @@ func main() {
 		return
 	}
 
+	ignoredDirectories := []string{"node_modules"}
+	fileExtensionMatches := []string{".exe", ".sh", ".bat", ".cmd"}
+
 	fmt.Printf("Indexing path provided: %s\n", *path)
 
-	index := indexPath(*path)
+	index := indexPath(*path, ignoredDirectories, fileExtensionMatches)
 	search(index)
 
 }

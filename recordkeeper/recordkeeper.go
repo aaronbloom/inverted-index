@@ -13,13 +13,13 @@ func CreateRecordKeeper() RecordKeeper {
 
 // AddRecord adds a new item into the record,
 // and returns its corresponding record id
-func (r *RecordKeeper) AddRecord(item string) int {
-	newRecord := RecordItem{len((*r).items), item}
+func (r *RecordKeeper) AddRecord(item string) int64 {
+	newRecord := RecordItem{int64(len((*r).items)), item}
 	(*r).items = append((*r).items, newRecord)
-	return newRecord.id
+	return newRecord.Id
 }
 
 // Record returns a record based upon an id
-func (r *RecordKeeper) Record(id int) RecordItem {
+func (r *RecordKeeper) Record(id int64) RecordItem {
 	return (*r).items[id]
 }
