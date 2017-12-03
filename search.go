@@ -17,7 +17,7 @@ func search(recordsIndex *recordkeeper.RecordIndex) (stop bool, err error) {
 		return true, fmt.Errorf("error prompting for user input: %v", err)
 	}
 
-	if input == "exit" {
+	if strings.TrimSpace(input) == "exit" {
 		return true, nil
 	}
 
