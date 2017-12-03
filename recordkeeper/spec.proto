@@ -1,6 +1,10 @@
 syntax = "proto3";
 package recordkeeper;
 
+message RecordKeeper {
+	repeated RecordItem items = 1;
+}
+
 message RecordItem {
     int64 id = 1;
     string content = 2;

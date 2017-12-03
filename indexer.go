@@ -2,12 +2,13 @@ package main
 
 import (
 	"fmt"
-	"github.com/aaronbloom/inverted-index/recordkeeper"
-	"github.com/aaronbloom/inverted-index/utils"
 	"os"
 	"path/filepath"
 	"strings"
 	"time"
+
+	"github.com/aaronbloom/inverted-index/recordkeeper"
+	"github.com/aaronbloom/inverted-index/utils"
 )
 
 func indexPath(startPath string, ignoredDirectories []string, fileExtensionMatches []string) recordkeeper.RecordIndex {

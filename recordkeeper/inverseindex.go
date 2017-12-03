@@ -9,6 +9,7 @@ type RecordIndex interface {
 	StoreRecord(item string, t tokeniser, filter termFilter)
 	Record(id int64) RecordItem
 	Search(term string, filter termFilter) []RecordItem
+	SaveToFile(filePath string) error
 }
 
 // CreateRecordIndex creates an new instance of a RecordIndex
@@ -79,4 +80,8 @@ func (ii *inverseIndex) insertNewTerm(term string, recordID int64) {
 		Records: []int64{recordID},
 	}
 	(*ii).index = append((*ii).index, index)
+}
+
+func (ii *inverseIndex) SaveToFile(filePath string) error {
+	return ii.records.SaveToFile(filePath)
 }
