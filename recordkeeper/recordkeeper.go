@@ -3,7 +3,6 @@ package recordkeeper
 import (
 	"fmt"
 	"io/ioutil"
-	"os"
 
 	proto "github.com/golang/protobuf/proto"
 )
@@ -37,24 +36,4 @@ func (r *RecordKeeper) SaveToFile(filePath string) error {
 		return fmt.Errorf("failed to write recordkeeper file: %v", err)
 	}
 	return nil
-}
-
-// ReadFromFile takes loads and parses a file to return RecordKeeper
-func ReadFromFile(filePath string) (RecordIndex, error) {
-	readItem := RecordKeeper{}
-	in, err := ioutil.ReadFile(filePath)
-	if err != nil {
-		if os.IsNotExist(err) {
-			fmt.Printf("%s: File not found. Creating new file.\n", filePath)
-		} else {
-			return nil, fmt.Errorf("error reading file: %v", err)
-		}
-	}
-
-	if err := proto.Unmarshal(in, &readItem); err != nil {
-		return nil, fmt.Errorf("failed to parse RecordKeeper: %v", err)
-	}
-
-	recordIndex := inverseIndex{records: readItem}
-	return &recordIndex, nil
 }

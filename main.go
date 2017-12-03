@@ -11,38 +11,50 @@ func main() {
 
 	mode := flag.String("m", "c", "mode - either 'create' (c) or 'search' (s)")
 	path := flag.String("p", "./", "path to traverse and index files")
-	indexFile := flag.String("i", "./", "index file")
+	indexDir := flag.String("i", "", "index file directory")
 	flag.Parse()
 
+	if len(*indexDir) < 0 {
+		fmt.Println("Please provide an index file directory. See --help")
+		return
+	}
+
+	recordsIndexFile := *indexDir + "_records"
+	termIndexFile := *indexDir + "_terms"
+
 	if *mode == "c" || *mode == "create" {
-		if err := create(*path); err != nil {
+		if err := create(*path, recordsIndexFile, termIndexFile); err != nil {
 			fmt.Printf("error in create mode: %v", err)
 		}
 	}
 
 	if *mode == "s" || *mode == "search" {
-		if err := loadIndexAndSearch(*indexFile); err != nil {
+		if err := loadIndexAndSearch(recordsIndexFile, termIndexFile); err != nil {
 			fmt.Printf("error in search mode: %v", err)
 		}
 	}
 }
 
-func loadIndexAndSearch(indexPath string) error {
-	if len(indexPath) < 1 {
-		return fmt.Errorf("please provide a valid path to traverse")
-	}
-
-	index, err := recordkeeper.ReadFromFile(indexPath)
+func loadIndexAndSearch(recordsIndexFile string, termIndexFile string) error {
+	index, err := recordkeeper.ReadFromFile(recordsIndexFile, termIndexFile)
 	if err != nil {
 		return fmt.Errorf("could not read index file: %v", err)
 	}
 
-	search(&index)
+	for {
+		stop, err := search(&index)
+		if err != nil {
+			return err
+		}
+		if stop {
+			return nil
+		}
+	}
 
 	return nil
 }
 
-func create(path string) error {
+func create(path string, recordsIndexFile string, termIndexFile string) error {
 	if len(path) < 1 {
 		return fmt.Errorf("please provide a path to traverse")
 	}
@@ -54,10 +66,10 @@ func create(path string) error {
 
 	index := indexPath(path, ignoredDirectories, fileExtensionMatches)
 
-	indexFilePath := "./recordsindex"
-	fmt.Printf("Saving index: %s\n", indexFilePath)
+	fmt.Printf("Saving records index: %s\n", recordsIndexFile)
+	fmt.Printf("Saving terms index: %s\n", termIndexFile)
 
-	err := index.SaveToFile(indexFilePath)
+	err := index.SaveToFile(recordsIndexFile, termIndexFile)
 	if err != nil {
 		return fmt.Errorf("could not save index to file: %v", err)
 	}

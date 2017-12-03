@@ -11,14 +11,14 @@ import (
 	"github.com/aaronbloom/inverted-index/utils"
 )
 
-func search(recordsIndex *recordkeeper.RecordIndex) (contine bool, err error) {
+func search(recordsIndex *recordkeeper.RecordIndex) (stop bool, err error) {
 	input, err := userInput()
 	if err != nil {
-		return false, fmt.Errorf("error prompting for user input: %v", err)
+		return true, fmt.Errorf("error prompting for user input: %v", err)
 	}
 
 	if input == "exit" {
-		return false, nil
+		return true, nil
 	}
 
 	startTime := time.Now()
