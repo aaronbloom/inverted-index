@@ -9,13 +9,13 @@ import (
 
 func main() {
 
-	mode := flag.String("m", "c", "mode - either 'create' (c) or 'search' (s)")
-	path := flag.String("p", "./", "path to traverse and index files")
-	indexDir := flag.String("i", "", "index file directory")
+	mode := flag.String("m", "", "mode - either 'create' (c) or 'search' (s)")
+	path := flag.String("p", "./", "path to traverse and create index files (create mode only)")
+	indexDir := flag.String("i", "./", "index file directory")
 	flag.Parse()
 
-	if len(*indexDir) < 0 {
-		fmt.Println("Please provide an index file directory. See --help")
+	if len(*indexDir) < 1 {
+		fmt.Println("Please provide an index file directory (-i). See --help")
 		return
 	}
 
@@ -26,16 +26,23 @@ func main() {
 		if err := create(*path, recordsIndexFile, termIndexFile); err != nil {
 			fmt.Printf("error in create mode: %v", err)
 		}
+		return
 	}
 
 	if *mode == "s" || *mode == "search" {
 		if err := loadIndexAndSearch(recordsIndexFile, termIndexFile); err != nil {
 			fmt.Printf("error in search mode: %v", err)
 		}
+		return
 	}
+
+	fmt.Println("Please provide a valid mode (-m). See --help")
+	return
 }
 
 func loadIndexAndSearch(recordsIndexFile string, termIndexFile string) error {
+	fmt.Printf("Loading record index from %s\n", recordsIndexFile)
+	fmt.Printf("Loading term index from %s\n", termIndexFile)
 	index, err := recordkeeper.ReadFromFile(recordsIndexFile, termIndexFile)
 	if err != nil {
 		return fmt.Errorf("could not read index file: %v", err)
@@ -50,8 +57,6 @@ func loadIndexAndSearch(recordsIndexFile string, termIndexFile string) error {
 			return nil
 		}
 	}
-
-	return nil
 }
 
 func create(path string, recordsIndexFile string, termIndexFile string) error {
