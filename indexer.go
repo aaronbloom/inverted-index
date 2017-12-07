@@ -10,11 +10,11 @@ import (
 	"time"
 )
 
-func indexPath(startPath string, ignoredDirectories []string, fileExtensionMatches []string) recordkeeper.RecordIndex {
+func indexPath(startPath string, ignoredDirectories []string, fileExtensionMatches []string) recordkeeper.InvertedIndex {
 	var totalCount int
 	var matchCount int
 
-	recordkeeper := recordkeeper.CreateRecordIndex()
+	recordkeeper := recordkeeper.New()
 
 	startTime := time.Now()
 
@@ -47,5 +47,5 @@ func indexPath(startPath string, ignoredDirectories []string, fileExtensionMatch
 	fmt.Printf("Total items found: %d\n", totalCount)
 	fmt.Printf("Total exes found: %d\n", matchCount)
 
-	return recordkeeper
+	return *recordkeeper
 }

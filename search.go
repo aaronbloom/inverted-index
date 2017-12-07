@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-func search(recordsIndex recordkeeper.RecordIndex) {
+func search(recordsIndex recordkeeper.InvertedIndex) {
 	input := userInput()
 
 	if input == "exit" {
